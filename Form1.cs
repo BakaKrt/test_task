@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -137,7 +136,7 @@ namespace test_task
         private async void RunButton_OnClick(object sender, EventArgs e)
         {
             int index = PickQueryComboBox.SelectedIndex;
-            
+
             if (index == -1)
             {
                 Console.WriteLine($"RunButton_OnClick: Не выбран элемент комбо-бокса!");

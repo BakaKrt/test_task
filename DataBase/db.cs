@@ -4,6 +4,11 @@ using System.Data;
 using System.Threading.Tasks;
 using test_task.DataBase;
 
+/* Не совсем понял задание с T-SQL и MSSQL. Видимо смысл был такой: (выполнением указанных запросов на языке T-SQL, используя драйвер MSSQL) ИЛИ (PostgreSQL)
+ * Я написал на MSSQL
+ * Не скрываю, частично пользовался ИИ. Уже работал с WinForms, а вот с MSSQL не приходилось.
+ */
+
 namespace test_task
 {
     public class MsSQLDataService : IDisposable
@@ -41,6 +46,7 @@ namespace test_task
                     Console.WriteLine($"Не удалось подключиться к {_pathToMaster}");
                     _connection.Close();
                     _connection.Dispose();
+                    _disposed = true;
                     return;
                 }
 
@@ -58,7 +64,7 @@ namespace test_task
                 {
                     await ChangeDb(this._pathToDb);
                 }
-                
+
                 Console.WriteLine($"Инициализация бд успешна");
             }
             catch (Exception ex)
@@ -108,7 +114,7 @@ namespace test_task
                 Console.WriteLine(ex);
                 return false;
             }
-            
+
         }
 
         /// <summary>
@@ -369,7 +375,7 @@ namespace test_task
 
                 #region Работа
                 string[] jobs = null;
-                
+
                 string checkJobsQuery = "SELECT COUNT(*) FROM JOBS";
                 using (var command = new SqlCommand(checkJobsQuery, _connection))
                 {
@@ -544,12 +550,12 @@ namespace test_task
         }
 
         /// <summary>
-        /// Выполнение запроса
+        /// Выполнить запрос согласно строке
         /// </summary>
         /// <param name="query">Сам запрос</param>
         /// <returns></returns>
         public async Task<DataTable> QueryByStringAsync(string query)
-        {            
+        {
             DataTable table = new DataTable();
 
             using (var command = new SqlCommand(query, _connection))
@@ -561,8 +567,8 @@ namespace test_task
             }
             return table;
         }
-        
-        
+
+
         public void Dispose()
         {
             if (this._connection.State == System.Data.ConnectionState.Open)
