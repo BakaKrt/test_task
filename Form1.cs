@@ -76,13 +76,13 @@ namespace test_task
                     JOIN COUNTRIES c ON c.COUNTRY_ID = l.COUNTRY_ID
                     JOIN REGIONS r ON r.REGION_ID = c.REGION_ID";
 
-            _comboBoxToQuery[6] = @"SELECT r.REGION_ID, COUNT(e.EMPLOYEE_ID) AS EmployeeCount
+            _comboBoxToQuery[6] = @"SELECT r.REGION_NAME, COUNT(e.EMPLOYEE_ID) AS EmployeeCount
                 FROM REGIONS AS r
 	                JOIN COUNTRIES c ON c.REGION_ID = r.REGION_ID
 	                JOIN LOCATIONS l ON l.COUNTRY_ID = c.COUNTRY_ID
 	                JOIN DEPARTMENTS d ON d.LOCATION_ID = l.LOCATION_ID
 	                JOIN EMPLOYEES e ON e.DEPARTMENT_ID = d.DEPARTMENT_ID
-                GROUP BY r.REGION_ID;";
+                GROUP BY r.REGION_NAME;";
 
             _comboBoxToQuery[7] = @"SELECT
 	                d.DEPARTMENT_NAME,
@@ -100,8 +100,7 @@ namespace test_task
                 FROM EMPLOYEES AS e
                 WHERE e.PHONE_NUMBER LIKE '___.___.__.__';";
 
-            _comboBoxToQuery[9] = @"USE test_task
-                SELECT *
+            _comboBoxToQuery[9] = @"SELECT e.FIRST_NAME, e.LAST_NAME
                 FROM DEPARTMENTS AS d
                     JOIN EMPLOYEES e ON e.DEPARTMENT_ID = d.DEPARTMENT_ID
                 WHERE d.DEPARTMENT_NAME = 'DAD'";

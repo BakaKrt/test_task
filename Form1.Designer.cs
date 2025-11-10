@@ -42,12 +42,14 @@
             // 
             this.dbResultDataGrid.AllowUserToAddRows = false;
             this.dbResultDataGrid.AllowUserToDeleteRows = false;
+            this.dbResultDataGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dbResultDataGrid.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllHeaders;
             this.dbResultDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dbResultDataGrid.Location = new System.Drawing.Point(12, 289);
+            this.dbResultDataGrid.Location = new System.Drawing.Point(12, 92);
             this.dbResultDataGrid.Name = "dbResultDataGrid";
             this.dbResultDataGrid.ReadOnly = true;
             this.dbResultDataGrid.RowTemplate.ReadOnly = true;
-            this.dbResultDataGrid.Size = new System.Drawing.Size(512, 220);
+            this.dbResultDataGrid.Size = new System.Drawing.Size(712, 417);
             this.dbResultDataGrid.TabIndex = 0;
             // 
             // dataSet1
@@ -60,7 +62,7 @@
             this.panel1.Controls.Add(this.PickQueryComboBox);
             this.panel1.Location = new System.Drawing.Point(12, 12);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(512, 74);
+            this.panel1.Size = new System.Drawing.Size(712, 74);
             this.panel1.TabIndex = 2;
             // 
             // button1
@@ -69,14 +71,14 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(47, 47);
             this.button1.TabIndex = 1;
-            this.button1.Text = "button1";
+            this.button1.Text = "RUN";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.RunButton_OnClick);
             // 
             // PickQueryComboBox
             // 
             this.PickQueryComboBox.FormattingEnabled = true;
-            this.PickQueryComboBox.Location = new System.Drawing.Point(3, 18);
+            this.PickQueryComboBox.Location = new System.Drawing.Point(12, 32);
             this.PickQueryComboBox.Name = "PickQueryComboBox";
             this.PickQueryComboBox.Size = new System.Drawing.Size(383, 21);
             this.PickQueryComboBox.TabIndex = 0;
@@ -86,7 +88,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(536, 521);
+            this.ClientSize = new System.Drawing.Size(736, 521);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.dbResultDataGrid);
             this.Name = "Form1";

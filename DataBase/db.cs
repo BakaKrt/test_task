@@ -334,10 +334,10 @@ namespace test_task
                         string insertLocationsQuery = @"
                         INSERT INTO LOCATIONS (STREET_ADDRESS, POSTAL_CODE, CITY, STATE_PROVINCE, COUNTRY_ID) VALUES
                         ('Maxim Gorky Avenue, 18b'  , '428001', 'Cheboksary', 'Chuvash Republic', 'RU'),
+                        ('Chapaeva Street, 39V', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
                         ('Moskovsky Prospect, 15'   , '428015', 'Cheboksary', 'Chuvash Republic', 'RU'),
                         ('Pirogov Street, 6'        , '428034', 'Cheboksary', 'Chuvash Republic', 'RU'),
                         ('Boris Semenovich Markov Street, 14', '428003', 'Cheboksary', 'Chuvash Republic', 'RU'),
-                        ('Chapaeva Street, 39V', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
                         ('Chapaeva Street, 52', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
                         ('Chapaeva Street, 64', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
                         ('50th Anniversary of October Street, 25', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
@@ -390,12 +390,12 @@ namespace test_task
                     INSERT INTO DEPARTMENTS (DEPARTMENT_NAME, MANAGER_ID, LOCATION_ID) VALUES
                     ('{departments[0]}', NULL, 1),
                     ('{departments[1]}', NULL, 2),
-                    ('{departments[2]}', NULL, 1),
-                    ('{departments[3]}', NULL, 2),
-                    ('{departments[4]}', NULL, 1),
+                    ('{departments[2]}', NULL, 3),
+                    ('{departments[3]}', NULL, 4),
+                    ('{departments[4]}', NULL, 5),
                     ('{departments[5]}', NULL, 1),
-                    ('{departments[6]}', NULL, 1),
-                    ('{departments[7]}', NULL, 1);";
+                    ('{departments[6]}', NULL, 2),
+                    ('{departments[7]}', NULL, 3);";
                         using (var insertCommand = new SqlCommand(insertDepartmentsQuery, _connection))
                         {
                             await insertCommand.ExecuteNonQueryAsync();
@@ -411,7 +411,7 @@ namespace test_task
                     int empCount = (int)await command.ExecuteScalarAsync();
                     if (empCount == 0)
                     {
-                        const int managersCount = 10;
+                        const int managersCount = 20;
                         string randomEmployees = DbFillHelper.GetRandomEmployee(managersCount, jobs, departments: departments);
 
                         // ==== работники, у которых сами являются менеджерами ====
@@ -430,7 +430,7 @@ namespace test_task
                         string[] managersID = new string[managersCount];
                         for (int i = 0; i < managersCount; i++) managersID[i] = (i + 1).ToString();
 
-                        string randomEmployyesWithManager = DbFillHelper.GetRandomEmployee(40, jobs, managersID, jobs);
+                        string randomEmployyesWithManager = DbFillHelper.GetRandomEmployee(60, jobs, managersID, jobs);
 
                         string insertOtherEmployeesQuery = $@"
                     INSERT INTO EMPLOYEES (FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER, HIRE_DATE, JOB_ID, SALARY, COMMISSION_PCT, MANAGER_ID, DEPARTMENT_ID)
