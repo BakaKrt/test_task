@@ -6,16 +6,20 @@ using System.Windows.Forms;
 
 namespace test_task
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         private MsSQLDataService _dbService = null;
         private readonly Dictionary<int, string> _comboBoxToQuery = new Dictionary<int, string>();
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
             InitComboBox();
         }
 
+        /// <summary>
+        /// Инициализация локальной БД MSSQL
+        /// </summary>
+        /// <returns></returns>
         public async Task InitDb()
         {
             string dbName = "test_task";
@@ -24,11 +28,35 @@ namespace test_task
             _dbService = new MsSQLDataService(dbName, pathToDb, pathToMaster);
 
             await _dbService.InitAsync();
+            this.RUN_BUTTON.Enabled = true;
         }
 
-        private async void MainForm_OnLoad(object sender, System.EventArgs e)
+        private void InitComboBox()
         {
-            await InitDb();
+            string[] queries = new string[] {
+                "1.Отобразить реквизиты сотрудников, менеджеры которых устроились на работу в 2025 году," +
+                    "но при это сами эти работники устроились на работу между 2023м и 2025м годами",
+                "2.Отобразить данные по сотрудникам: из какого департамента и какими текущими задачами занимается. " +
+                    "Результат отобразить в трех полях: employees.first_name, jobs.job_title, departments.department_name",
+                "3.Отобразить город, в котором сотрудники в сумме зарабатывают больше всех.",
+                "4.Вывести все реквизиты сотрудников, менеджеры которых устроились на работу в марте месяце любого года и" +
+                    "длина job_title этих сотрудников больше 16 символа",
+                "5.Вывести реквизит first_name сотрудников, которые живут в Europe (region_name) и Russia (country_name)",
+                "6.Получить детальную информацию о каждом сотруднике:First_name, Last_name, Departament, Job, Street, Country, Region",
+                "7.Отразить регионы и количество сотрудников в каждом регионе",
+                "8.Вывести информацию по департаменту department_name с минимальной и максимальной зарплатой," +
+                    "с ранней и поздней датой найма на работу и с количеством сотрудников. Сортировать по количеству сотрудников (по убыванию)",
+                "9.Получить список реквизитов сотрудников FIRST_NAME, LAST_NAME и первые три цифры от номера телефона," +
+                    "если его номер в формате ХХХ.ХХХ.ХХХХ",
+                "10.Вывести список сотрудников, которые работают в департаменте администрирования доходов" +
+                    "(departments.department_name = 'DAD')" };
+
+
+            PickQueryComboBox.Items.AddRange(queries);
+            PickQueryComboBox.SelectedIndex = 0;
+
+            // возможно это неправильно
+            // здесь я устанавливаю соответствие между текущим индексом, выбранным в ComboBox к запросу
 
             _comboBoxToQuery[0] = @"
                 SELECT e.FIRST_NAME, e.LAST_NAME, e.EMAIL, e.PHONE_NUMBER
@@ -106,54 +134,34 @@ namespace test_task
                 WHERE d.DEPARTMENT_NAME = 'DAD'";
         }
 
-        private void InitComboBox()
-        {
-            string[] queries = new string[] {
-                "1.Отобразить реквизиты сотрудников, менеджеры которых устроились на работу в 2025 году," +
-                    "но при это сами эти работники устроились на работу между 2023м и 2025м годами",
-                "2.Отобразить данные по сотрудникам: из какого департамента и какими текущими задачами занимается. " +
-                    "Результат отобразить в трех полях: employees.first_name, jobs.job_title, departments.department_name",
-                "3.Отобразить город, в котором сотрудники в сумме зарабатывают больше всех.",
-                "4.Вывести все реквизиты сотрудников, менеджеры которых устроились на работу в марте месяце любого года и" +
-                    "длина job_title этих сотрудников больше 16 символа",
-                "5.Вывести реквизит first_name сотрудников, которые живут в Europe (region_name) и Russia (country_name)",
-                "6.Получить детальную информацию о каждом сотруднике:First_name, Last_name, Departament, Job, Street, Country, Region",
-                "7.Отразить регионы и количество сотрудников в каждом регионе",
-                "8.Вывести информацию по департаменту department_name с минимальной и максимальной зарплатой," +
-                    "с ранней и поздней датой найма на работу и с количеством сотрудников. Сортировать по количеству сотрудников (по убыванию)",
-                "9.Получить список реквизитов сотрудников FIRST_NAME, LAST_NAME и первые три цифры от номера телефона," +
-                    "если его номер в формате ХХХ.ХХХ.ХХХХ",
-                "10.Вывести список сотрудников, которые работают в департаменте администрирования доходов" +
-                    "(departments.department_name = 'DAD')" };
-
-
-            PickQueryComboBox.Items.AddRange(queries);
-        }
-
         private async void RunButton_OnClick(object sender, EventArgs e)
         {
             int index = PickQueryComboBox.SelectedIndex;
-            if (index != -1)
+            
+            if (index == -1)
             {
-                if (_comboBoxToQuery.TryGetValue(index, out var query))
-                {
-                    this.dbResultDataGrid.DataSource = await _dbService.QueryByStringAsync(query);
-                }
-                else
-                {
-                    Console.WriteLine($"RunButton_OnClick: _comboBoxToAction.TryGetValue = false");
-                }
+                Console.WriteLine($"RunButton_OnClick: Не выбран элемент комбо-бокса!");
+                return;
+            }
 
+            if (_comboBoxToQuery.TryGetValue(index, out var query))
+            {
+                this.dbResultDataGrid.DataSource = await _dbService.QueryByStringAsync(query);
             }
             else
             {
-                Console.WriteLine($"RunButton_OnClick: Не выбран элемент комбо-бокса!");
+                Console.WriteLine($"RunButton_OnClick: _comboBoxToAction.TryGetValue = false");
             }
         }
 
-        private void PickQueryComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void MainForm_BeforeClosing(object sender, FormClosingEventArgs e)
         {
+            _dbService.Dispose();
+        }
 
+        private async void MainForm_Load(object sender, EventArgs e)
+        {
+            await InitDb();
         }
     }
 }

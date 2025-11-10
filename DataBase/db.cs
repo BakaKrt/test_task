@@ -8,8 +8,8 @@ namespace test_task
 {
     public class MsSQLDataService : IDisposable
     {
+        private bool _disposed = false;
         private SqlConnection _connection;
-        private bool Disposed = false;
         private readonly string _pathToMaster;
         private readonly string _pathToDb;
         private readonly string _dbName;
@@ -22,6 +22,10 @@ namespace test_task
             this._pathToMaster = pathToMaster;
         }
 
+        /// <summary>
+        /// Инициализация БД, проверка на существование (включая создание бд при её отсутствии и наполнению данными)
+        /// </summary>
+        /// <returns></returns>
         public async Task InitAsync()
         {
             this._connection = new SqlConnection(_pathToMaster);
@@ -62,14 +66,16 @@ namespace test_task
                 Console.WriteLine(ex);
                 _connection.Close();
                 _connection.Dispose();
-            }
-            finally
-            {
-                //_connection.Close();
-                //_connection.Dispose();
+                _disposed = true;
             }
         }
 
+        /// <summary>
+        /// Проверка БД на существование
+        /// </summary>
+        /// <param name="dbName">Имя бд</param>
+        /// <param name="con">Подключение</param>
+        /// <returns>true, если БД существует, иначе false</returns>
         private async Task<bool> IsDbExist(string dbName, SqlConnection con)
         {
             SqlCommand allTables = new SqlCommand($"SELECT COUNT(*) FROM sys.databases WHERE name = '{dbName}';", con);
@@ -79,6 +85,12 @@ namespace test_task
             return true;
         }
 
+
+        /// <summary>
+        /// Смена текущей базы данных на другую
+        /// </summary>
+        /// <param name="dbPath">Путь до БД</param>
+        /// <returns>true, если смена удалась, иначе false</returns>
         private async Task<bool> ChangeDb(string dbPath)
         {
             try
@@ -88,6 +100,7 @@ namespace test_task
 
                 this._connection = new SqlConnection(dbPath);
                 await this._connection.OpenAsync();
+
                 return true;
             }
             catch (Exception ex)
@@ -99,7 +112,7 @@ namespace test_task
         }
 
         /// <summary>
-        /// Создаёт БД, если их нет
+        /// Создаёт БД, если её нет
         /// </summary>
         /// <returns></returns>
         private async Task CreateDatabaseIfNotExistsAsync()
@@ -280,7 +293,7 @@ namespace test_task
             try
             {
 
-                // Проверить, есть ли данные в таблице REGIONS
+                #region РЕГИОНЫ
                 string checkRegionsQuery = "SELECT COUNT(*) FROM REGIONS";
                 using (var command = new SqlCommand(checkRegionsQuery, _connection))
                 {
@@ -301,8 +314,9 @@ namespace test_task
                         }
                     }
                 }
+                #endregion
 
-                // Проверить, есть ли данные в таблице COUNTRIES
+                #region СТРАНЫ
                 string checkCountriesQuery = "SELECT COUNT(*) FROM COUNTRIES";
                 using (var command = new SqlCommand(checkCountriesQuery, _connection))
                 {
@@ -310,12 +324,12 @@ namespace test_task
                     if (countryCount == 0)
                     {
                         string insertCountriesQuery = @"
-                    INSERT INTO COUNTRIES (COUNTRY_ID, COUNTRY_NAME, REGION_ID) VALUES
-                    ('RU', 'Russia', 1),
-                    ('DE', 'Germany', 1),
-                    ('FR', 'France', 1),
-                    ('JP', 'Japan', 2),
-                    ('US', 'United States of America', 3);";
+                            INSERT INTO COUNTRIES (COUNTRY_ID, COUNTRY_NAME, REGION_ID) VALUES
+                            ('RU', 'Russia', 1),
+                            ('DE', 'Germany', 1),
+                            ('FR', 'France', 1),
+                            ('JP', 'Japan', 2),
+                            ('US', 'United States of America', 3);";
                         using (var insertCommand = new SqlCommand(insertCountriesQuery, _connection))
                         {
                             await insertCommand.ExecuteNonQueryAsync();
@@ -323,8 +337,9 @@ namespace test_task
                         }
                     }
                 }
+                #endregion
 
-                // Проверить, есть ли данные в таблице LOCATIONS
+                #region ЛОКАЦИИ
                 string checkLocationsQuery = "SELECT COUNT(*) FROM LOCATIONS";
                 using (var command = new SqlCommand(checkLocationsQuery, _connection))
                 {
@@ -333,17 +348,16 @@ namespace test_task
                     {
                         string insertLocationsQuery = @"
                         INSERT INTO LOCATIONS (STREET_ADDRESS, POSTAL_CODE, CITY, STATE_PROVINCE, COUNTRY_ID) VALUES
-                        ('Maxim Gorky Avenue, 18b'  , '428001', 'Cheboksary', 'Chuvash Republic', 'RU'),
-                        ('Chapaeva Street, 39V', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
-                        ('Moskovsky Prospect, 15'   , '428015', 'Cheboksary', 'Chuvash Republic', 'RU'),
-                        ('Pirogov Street, 6'        , '428034', 'Cheboksary', 'Chuvash Republic', 'RU'),
-                        ('Boris Semenovich Markov Street, 14', '428003', 'Cheboksary', 'Chuvash Republic', 'RU'),
-                        ('Chapaeva Street, 52', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
-                        ('Chapaeva Street, 64', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
-                        ('50th Anniversary of October Street, 25', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
-                        ('2014 Jabberwocky Rd', '26192', 'Southlake', 'Texas', 'US'),
-                        ('2011 Interiors Blvd', '99236', 'South San Francisco', 'California', 'US')
-                    ;";
+                            ('Maxim Gorky Avenue, 18b'  , '428001', 'Cheboksary', 'Chuvash Republic', 'RU'),
+                            ('Chapaeva Street, 39V', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
+                            ('Moskovsky Prospect, 15'   , '428015', 'Cheboksary', 'Chuvash Republic', 'RU'),
+                            ('Pirogov Street, 6'        , '428034', 'Cheboksary', 'Chuvash Republic', 'RU'),
+                            ('Boris Semenovich Markov Street, 14', '428003', 'Cheboksary', 'Chuvash Republic', 'RU'),
+                            ('Chapaeva Street, 52', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
+                            ('Chapaeva Street, 64', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
+                            ('50th Anniversary of October Street, 25', '429530', 'Morgaushi', 'Chuvash Republic', 'RU'),
+                            ('2014 Jabberwocky Rd', '26192', 'Southlake', 'Texas', 'US'),
+                            ('2011 Interiors Blvd', '99236', 'South San Francisco', 'California', 'US');";
                         using (var insertCommand = new SqlCommand(insertLocationsQuery, _connection))
                         {
                             await insertCommand.ExecuteNonQueryAsync();
@@ -351,24 +365,27 @@ namespace test_task
                         }
                     }
                 }
+                #endregion
 
-                string[] jobs = new string[6] { "PRESIDENT", "IT_PROG", "TEST", "TEST2", "TEST3", "MANAGER" };
-
-                // Проверить, есть ли данные в таблице JOBS
+                #region Работа
+                string[] jobs = null;
+                
                 string checkJobsQuery = "SELECT COUNT(*) FROM JOBS";
                 using (var command = new SqlCommand(checkJobsQuery, _connection))
                 {
                     int jobCount = (int)await command.ExecuteScalarAsync();
                     if (jobCount == 0)
                     {
+                        jobs = new string[6] { "PRESIDENT", "IT_PROG", "TEST", "TEST2", "TEST3", "MANAGER" };
+
                         string insertJobsQuery = $@"
-                    INSERT INTO JOBS (JOB_ID, JOB_TITLE, MIN_SALARY, MAX_SALARY) VALUES
-                    ('{jobs[0]}', 'Президент мира', 20000, 40000),
-                    ('{jobs[1]}', 'Программист, сидит у компа', 4000, 999999),
-                    ('{jobs[2]}', 'Что-то тестовое', 4000, 999999),
-                    ('{jobs[3]}', 'Ещё тестовая позиция', 4000, 999999),
-                    ('{jobs[4]}', 'И ещё тестовая позиция', 4000, 999999),
-                    ('{jobs[5]}', 'Менеджер', 5000, 999999);";
+                            INSERT INTO JOBS (JOB_ID, JOB_TITLE, MIN_SALARY, MAX_SALARY) VALUES
+                            ('{jobs[0]}', 'President of the world', 20000, 40000),
+                            ('{jobs[1]}', 'Just a programer, maybe', 4000, 999999),
+                            ('{jobs[2]}', 'Something test', 4000, 77777),
+                            ('{jobs[3]}', 'Another test pos', 4000, 88888),
+                            ('{jobs[4]}', 'Another one test', 4000, 567567),
+                            ('{jobs[5]}', 'Manager of the world', 5000, 789789);";
                         using (var insertCommand = new SqlCommand(insertJobsQuery, _connection))
                         {
                             await insertCommand.ExecuteNonQueryAsync();
@@ -376,26 +393,29 @@ namespace test_task
                         }
                     }
                 }
+                #endregion
 
-                string[] departments = new string[8] { "Administration", "Marketing", "Purchasing", "Human Resources", "Shipping", "IT", "DAD", "Public Relations" };
+                #region Департаменты
+                string[] departments = null;
 
-                // Проверяем и вставляем для DEPARTMENTS
                 string checkDepartmentsQuery = "SELECT COUNT(*) FROM DEPARTMENTS";
                 using (var command = new SqlCommand(checkDepartmentsQuery, _connection))
                 {
                     int deptCount = (int)await command.ExecuteScalarAsync();
                     if (deptCount == 0)
                     {
+                        departments = new string[8] { "Administration", "Marketing", "Purchasing", "Human Resources", "Shipping", "IT", "DAD", "Public Relations" };
+
                         string insertDepartmentsQuery = $@"
-                    INSERT INTO DEPARTMENTS (DEPARTMENT_NAME, MANAGER_ID, LOCATION_ID) VALUES
-                    ('{departments[0]}', NULL, 1),
-                    ('{departments[1]}', NULL, 2),
-                    ('{departments[2]}', NULL, 3),
-                    ('{departments[3]}', NULL, 4),
-                    ('{departments[4]}', NULL, 5),
-                    ('{departments[5]}', NULL, 1),
-                    ('{departments[6]}', NULL, 2),
-                    ('{departments[7]}', NULL, 3);";
+                            INSERT INTO DEPARTMENTS (DEPARTMENT_NAME, MANAGER_ID, LOCATION_ID) VALUES
+                            ('{departments[0]}', NULL, 1),
+                            ('{departments[1]}', NULL, 2),
+                            ('{departments[2]}', NULL, 3),
+                            ('{departments[3]}', NULL, 4),
+                            ('{departments[4]}', NULL, 5),
+                            ('{departments[5]}', NULL, 1),
+                            ('{departments[6]}', NULL, 9),
+                            ('{departments[7]}', NULL, 10);";
                         using (var insertCommand = new SqlCommand(insertDepartmentsQuery, _connection))
                         {
                             await insertCommand.ExecuteNonQueryAsync();
@@ -403,8 +423,9 @@ namespace test_task
                         }
                     }
                 }
+                #endregion
 
-                // Проверяем и вставляем для EMPLOYEES
+                #region РАБОТНИКИ
                 string checkEmployeesQuery = "SELECT COUNT(*) FROM EMPLOYEES";
                 using (var command = new SqlCommand(checkEmployeesQuery, _connection))
                 {
@@ -416,8 +437,8 @@ namespace test_task
 
                         // ==== работники, у которых сами являются менеджерами ====
                         string insertFirstEmployeeQuery = $@"
-                    INSERT INTO EMPLOYEES (FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER, HIRE_DATE, JOB_ID, SALARY, COMMISSION_PCT, MANAGER_ID, DEPARTMENT_ID)
-                    VALUES
+                            INSERT INTO EMPLOYEES (FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER, HIRE_DATE, JOB_ID, SALARY, COMMISSION_PCT, MANAGER_ID, DEPARTMENT_ID)
+                            VALUES
                         {randomEmployees};";
 
                         using (var insertCommand = new SqlCommand(insertFirstEmployeeQuery, _connection))
@@ -433,8 +454,8 @@ namespace test_task
                         string randomEmployyesWithManager = DbFillHelper.GetRandomEmployee(60, jobs, managersID, jobs);
 
                         string insertOtherEmployeesQuery = $@"
-                    INSERT INTO EMPLOYEES (FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER, HIRE_DATE, JOB_ID, SALARY, COMMISSION_PCT, MANAGER_ID, DEPARTMENT_ID)
-                    VALUES
+                            INSERT INTO EMPLOYEES (FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER, HIRE_DATE, JOB_ID, SALARY, COMMISSION_PCT, MANAGER_ID, DEPARTMENT_ID)
+                            VALUES
                         {randomEmployyesWithManager};";
                         using (var insertCommand = new SqlCommand(insertOtherEmployeesQuery, _connection))
                         {
@@ -442,18 +463,20 @@ namespace test_task
                             Console.WriteLine("Таблица EMPLOYEES заполнена начальными данными.");
                         }
 
+
+                        // добавляем департаментам менеджеров
                         string updateDepartmentsQuery = @"
-                        UPDATE DEPARTMENTS
-                        SET MANAGER_ID = 1
-                        WHERE DEPARTMENT_NAME = 'Administration';
+                            UPDATE DEPARTMENTS
+                            SET MANAGER_ID = 1
+                            WHERE DEPARTMENT_NAME = 'Administration';
 
-                        UPDATE DEPARTMENTS
-                        SET MANAGER_ID = 2
-                        WHERE DEPARTMENT_NAME = 'IT';
+                            UPDATE DEPARTMENTS
+                            SET MANAGER_ID = 2
+                            WHERE DEPARTMENT_NAME = 'IT';
 
-                        UPDATE DEPARTMENTS
-                        SET MANAGER_ID = 3
-                        WHERE DEPARTMENT_NAME = 'DAD'";
+                            UPDATE DEPARTMENTS
+                            SET MANAGER_ID = 3
+                            WHERE DEPARTMENT_NAME = 'DAD'";
 
                         using (var updateCommand = new SqlCommand(updateDepartmentsQuery, _connection))
                         {
@@ -461,7 +484,7 @@ namespace test_task
                             Console.WriteLine("Таблица DEPARTMENTS обновлена (установлены менеджеры).");
                         }
 
-                        // Теперь можем обновить EMPLOYEES, установив DEPARTMENT_ID.
+                        // обновляем привязку работников к департаменту
                         string updateEmployeesQuery = @"
                         UPDATE EMPLOYEES
                         SET DEPARTMENT_ID = 1
@@ -482,27 +505,21 @@ namespace test_task
                         }
                     }
                 }
+                #endregion
 
-
-
-
-
-
-
-                // Проверяем и вставляем для JOB_HISTORY
+                #region история_работ
                 string checkJobHistoryQuery = "SELECT COUNT(*) FROM JOB_HISTORY";
                 using (var command = new SqlCommand(checkJobHistoryQuery, _connection))
                 {
                     int historyCount = (int)await command.ExecuteScalarAsync();
                     if (historyCount == 0)
                     {
-                        // Пример вставки в JOB_HISTORY (предполагаем, что EMPLOYEE_ID, JOB_ID, DEPARTMENT_ID существуют)
                         string insertJobHistoryQuery = @"
-                    INSERT INTO JOB_HISTORY (EMPLOYEE_ID, START_DATE, END_DATE, JOB_ID, DEPARTMENT_ID) VALUES
-                    (1, '1993-01-13', '1998-07-24', 'IT_PROG', 1),
-                    (1, '1989-09-21', '1993-10-27', 'TEST', 2),
-                    (2, '1993-10-28', '1997-03-15', 'IT_PROG', 1),
-                    (2, '1987-09-17', '1993-06-17', 'TEST', 2);";
+                            INSERT INTO JOB_HISTORY (EMPLOYEE_ID, START_DATE, END_DATE, JOB_ID, DEPARTMENT_ID) VALUES
+                            (1, '1993-01-13', '1998-07-24', 'IT_PROG', 1),
+                            (1, '1989-09-21', '1993-10-27', 'TEST', 2),
+                            (2, '1993-10-28', '1997-03-15', 'IT_PROG', 1),
+                            (2, '1987-09-17', '1993-06-17', 'TEST', 2);";
                         using (var insertCommand = new SqlCommand(insertJobHistoryQuery, _connection))
                         {
                             await insertCommand.ExecuteNonQueryAsync();
@@ -510,9 +527,11 @@ namespace test_task
                         }
                     }
                 }
+                #endregion
             }
             catch
             {
+                // если случилась ошибка, то дропаем её для новой попытки создания
                 string dropDbToRetry =
                     "USE master;" +
                     "ALTER DATABASE test_task SET SINGLE_USER WITH ROLLBACK IMMEDIATE;" +
@@ -524,6 +543,11 @@ namespace test_task
             }
         }
 
+        /// <summary>
+        /// Выполнение запроса
+        /// </summary>
+        /// <param name="query">Сам запрос</param>
+        /// <returns></returns>
         public async Task<DataTable> QueryByStringAsync(string query)
         {            
             DataTable table = new DataTable();
@@ -546,7 +570,8 @@ namespace test_task
                 this._connection.Close();
                 this._connection.Dispose();
                 this._connection = null;
-                this.Disposed = true;
+                this._disposed = true;
+                Console.WriteLine($"Закрыли соединение с бд");
             }
         }
     }

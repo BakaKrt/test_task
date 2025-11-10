@@ -4,29 +4,40 @@ using System.Text;
 
 namespace test_task.DataBase
 {
+    /// <summary>
+    /// Помощник для заполнения БД данными. Наверное можно было сделать умнее и правильнее
+    /// </summary>
     public static class DbFillHelper
     {
         private static readonly Random _random = new Random();
         private static int _counter = 0;
 
-        private const int size = 7;
-        private static readonly ReadOnlyCollection<string> firstNames = new ReadOnlyCollection<string>(new string[size] { "Ivan", "Kolya", "Test", "Vova", "Kirieshka", "Erik", "Kirill" });
-        private static readonly ReadOnlyCollection<string> secondNames = new ReadOnlyCollection<string>(new string[size] { "Ivanov", "Test", "Koshka", "Kolyanskii", "Qwerty", "Bekker", "Da" });
+        private const int _namesSize = 7;
+        private static readonly ReadOnlyCollection<string> _firstNames = new ReadOnlyCollection<string>(new string[_namesSize] { "Ivan", "Kolya", "Test", "Vova", "Kirieshka", "Erik", "Kirill" });
+        private static readonly ReadOnlyCollection<string> _secondNames = new ReadOnlyCollection<string>(new string[_namesSize] { "Ivanov", "Test", "Koshka", "Kolyanskii", "Qwerty", "Bekker", "Da" });
 
-        private static readonly ReadOnlyCollection<string> emailPrefix = new ReadOnlyCollection<string>(new string[] { "subject", "test", "mymail" });
-        private static readonly ReadOnlyCollection<string> emailPostfixs = new ReadOnlyCollection<string>(new string[] { "@mail.ru", "@gmail.com", "@yandex.ru" });
+        private static readonly ReadOnlyCollection<string> _emailPrefix = new ReadOnlyCollection<string>(new string[] { "subject", "test", "mymail" });
+        private static readonly ReadOnlyCollection<string> _emailPostfixs = new ReadOnlyCollection<string>(new string[] { "@mail.ru", "@gmail.com", "@yandex.ru" });
 
-        private static readonly int numberMax = Int32.MaxValue;
-        private static readonly int minSalary = 1000;
-        private static readonly int maxSalary = 999999;
+        private static readonly int _numberMax = Int32.MaxValue;
+        private static readonly int _minSalary = 1000;
+        private static readonly int _maxSalary = 999999;
 
-        private static readonly int minYear = 2020;
-        private static readonly int maxYear = 2025;
+        private static readonly int _minYear = 2020;
+        private static readonly int _maxYear = 2025;
 
-        private static readonly int minMonth = 1;
-        private static readonly int maxMonth = 12;
+        private static readonly int _minMonth = 1;
+        private static readonly int _maxMonth = 12;
 
 
+        /// <summary>
+        /// Случайный рабочий
+        /// </summary>
+        /// <param name="count">Количество строк</param>
+        /// <param name="jobs">Список работ</param>
+        /// <param name="managers">Список менеджеров</param>
+        /// <param name="departments">Список департаментов</param>
+        /// <returns></returns>
         public static string GetRandomEmployee(int count, string[] jobs, string[] managers = null, string[] departments = null)
         {
             StringBuilder sb = new StringBuilder();
@@ -35,19 +46,19 @@ namespace test_task.DataBase
 
             while (iter < count)
             {
-                string randNumber = (8_000_000_00_00 - _random.Next(228, numberMax) - 7_000_000_00_00).ToString()
+                string randNumber = (8_000_000_00_00 - _random.Next(228, _numberMax) - 7_000_000_00_00).ToString()
                     .Insert(8, ".").Insert(6, ".").Insert(3, ".");
 
                 sb.Append(
-                    $"('{firstNames[_random.Next(0, size)]}', " +                   // FIRST_NAME
-                    $"'{secondNames[_random.Next(0, size)]}'," +                    // LAST_NAME
-                    $"'{emailPrefix[_random.Next(0, emailPrefix.Count)]}" +         // email prefix
+                    $"('{_firstNames[_random.Next(0, _namesSize)]}', " +            // FIRST_NAME
+                    $"'{_secondNames[_random.Next(0, _namesSize)]}'," +             // LAST_NAME
+                    $"'{_emailPrefix[_random.Next(0, _emailPrefix.Count)]}" +       // email prefix
                     $"{_counter}" +                                                 // email number
-                    $"{emailPostfixs[_random.Next(0, emailPostfixs.Count)]}'," +    // email postfix
+                    $"{_emailPostfixs[_random.Next(0, _emailPostfixs.Count)]}'," +  // email postfix
                     $"'{randNumber}'," +                                            // number
-                    $"'{_random.Next(minYear, maxYear+1)}-{_random.Next(minMonth, maxMonth+1)}-15'," + // дата
+                    $"'{_random.Next(_minYear, _maxYear+1)}-{_random.Next(_minMonth, _maxMonth+1)}-15'," + // дата
                     $"'{jobs[_random.Next(0, jobs.Length)]}', " +                   // job
-                    $"'{_random.Next(minSalary, maxSalary)}', " +                   // ЗП
+                    $"'{_random.Next(_minSalary, _maxSalary)}', " +                 // ЗП
                     $"NULL, ");                                                     // COMMISSION_PCT
 
                 _counter++;
