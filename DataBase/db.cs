@@ -554,18 +554,22 @@ namespace test_task
         /// </summary>
         /// <param name="query">Сам запрос</param>
         /// <returns></returns>
-        public async Task<DataTable> QueryByStringAsync(string query)
+        public async Task<DataSet> QueryByStringAsync(string query)
         {
-            DataTable table = new DataTable();
+            DataSet dataSet = new DataSet();
+            DataTable dataTable = new DataTable();
 
             using (var command = new SqlCommand(query, _connection))
             {
                 using (var reader = await command.ExecuteReaderAsync())
                 {
-                    table.Load(reader);
+                    // чтобы не блокировать поток UI, придётся запустить в отдельном потоке
+                    await Task.Run(() => dataTable.Load(reader));
                 }
             }
-            return table;
+
+            dataSet.Tables.Add(dataTable);
+            return dataSet;
         }
 
 

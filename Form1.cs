@@ -145,7 +145,7 @@ namespace test_task
 
             if (_comboBoxToQuery.TryGetValue(index, out var query))
             {
-                this.dbResultDataGrid.DataSource = await _dbService.QueryByStringAsync(query);
+                this.dbResultDataGrid.DataSource = (await _dbService.QueryByStringAsync(query)).Tables[0];
             }
             else
             {
