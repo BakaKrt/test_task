@@ -13,7 +13,6 @@ namespace test_task
 {
     public class MsSQLDataService : IDisposable
     {
-        private bool _disposed = false;
         private SqlConnection _connection;
         private readonly string _pathToMaster;
         private readonly string _pathToDb;
@@ -46,7 +45,6 @@ namespace test_task
                     Console.WriteLine($"Не удалось подключиться к {_pathToMaster}");
                     _connection.Close();
                     _connection.Dispose();
-                    _disposed = true;
                     return;
                 }
 
@@ -72,7 +70,6 @@ namespace test_task
                 Console.WriteLine(ex);
                 _connection.Close();
                 _connection.Dispose();
-                _disposed = true;
             }
         }
 
@@ -580,7 +577,6 @@ namespace test_task
                 this._connection.Close();
                 this._connection.Dispose();
                 this._connection = null;
-                this._disposed = true;
                 Console.WriteLine($"Закрыли соединение с бд");
             }
         }
